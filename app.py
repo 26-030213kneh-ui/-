@@ -1,11 +1,16 @@
 import streamlit as st
 import chess
 
+# =========================================================
+# 페이지 설정
+# =========================================================
+
 st.set_page_config(
     page_title="My Chess",
     page_icon="♟️",
     layout="centered"
 )
+
 
 # =========================================================
 # CSS
@@ -14,181 +19,113 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.main .block-container {
-    max-width: 850px;
-    padding-top: 2rem;
+/* 전체 페이지 */
+.block-container {
+    max-width: 760px !important;
+    padding-top: 25px !important;
 }
 
-/* 체스판 */
-.chess-board {
+
+/* ================================
+   체스판
+================================ */
+
+.chess-container {
     width: 100%;
-    max-width: 720px;
-    margin: 20px auto;
-    border: 10px solid #3b2f2f;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow:
-        0 12px 30px rgba(0,0,0,0.35),
-        inset 0 0 0 2px rgba(255,255,255,0.15);
+    max-width: 640px;
+    margin: 25px auto 10px auto;
+    padding: 8px;
+    background: #3b2f2f;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
-/* 한 줄 */
-.chess-row {
-    display: flex;
-    width: 100%;
+
+/* ================================
+   Streamlit column
+================================ */
+
+div[data-testid="column"] {
+    padding: 0 !important;
 }
 
-/* 한 칸 */
-.chess-square {
-    width: 12.5%;
-    aspect-ratio: 1 / 1;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* ================================
+   체스 칸 버튼
+================================ */
 
-    position: relative;
+/*
+   모든 Streamlit 버튼을 체스판 버튼으로 사용
+*/
 
-    cursor: pointer;
+.chess-cell button {
+    width: 100% !important;
+    height: 100% !important;
+
+    min-height: 70px !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    font-size: 48px !important;
+    line-height: 1 !important;
 
     font-family:
-        "Arial Unicode MS",
-        "Noto Sans Symbols 2",
         "Segoe UI Symbol",
-        sans-serif;
+        "Noto Sans Symbols 2",
+        "Arial Unicode MS",
+        sans-serif !important;
 
-    transition: filter 0.12s ease;
+    transition: 0.12s ease !important;
 }
 
-/* 밝은 칸 */
-.light-square {
-    background-color: #f0d9b5;
+
+/* 버튼 hover */
+.chess-cell button:hover {
+    transform: scale(0.97);
+    filter: brightness(1.08);
 }
 
-/* 어두운 칸 */
-.dark-square {
-    background-color: #b58863;
+
+/* 버튼 안의 텍스트 */
+.chess-cell button p {
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* 마우스를 올렸을 때 */
-.chess-square:hover {
-    filter: brightness(1.12);
-}
 
-/* 체스 말 */
-.chess-piece {
-    font-size: clamp(42px, 7vw, 72px);
-    line-height: 1;
+/* ================================
+   좌표
+================================ */
 
-    user-select: none;
-
-    filter:
-        drop-shadow(0px 3px 2px rgba(0,0,0,0.45));
-
-    transform: translateY(-2px);
-
-    z-index: 2;
-}
-
-/* 흰색 말 */
-.white-piece {
-    color: #ffffff;
-
-    text-shadow:
-        -1px -1px 0 #222,
-         1px -1px 0 #222,
-        -1px  1px 0 #222,
-         1px  1px 0 #222,
-         0px 3px 5px rgba(0,0,0,0.5);
-}
-
-/* 검은색 말 */
-.black-piece {
-    color: #171717;
-
-    text-shadow:
-        0px 2px 3px rgba(255,255,255,0.25),
-        0px 4px 6px rgba(0,0,0,0.6);
-}
-
-/* 선택된 칸 */
-.selected-square {
-    background-color: #f7ec55 !important;
-    box-shadow:
-        inset 0 0 0 5px rgba(255, 193, 7, 0.8);
-}
-
-/* 이동 가능한 칸 */
-.legal-square::after {
-    content: "";
-    position: absolute;
-
-    width: 22%;
-    height: 22%;
-
-    background-color: rgba(30, 130, 76, 0.75);
-
-    border-radius: 50%;
-
-    z-index: 1;
-}
-
-/* 말을 잡을 수 있는 칸 */
-.capture-square::after {
-    content: "";
-
-    position: absolute;
-
-    width: 72%;
-    height: 72%;
-
-    border: 5px solid rgba(190, 40, 40, 0.75);
-
-    border-radius: 50%;
-
-    z-index: 1;
-}
-
-/* 좌표 */
-.board-coordinate {
-    position: absolute;
-
-    font-size: 12px;
+.coordinate {
+    font-size: 11px;
     font-weight: bold;
-
-    opacity: 0.65;
-
-    z-index: 3;
+    opacity: 0.6;
 }
 
-.rank-coordinate {
-    top: 3px;
-    left: 5px;
-}
 
-.file-coordinate {
-    bottom: 3px;
-    right: 5px;
-}
+/* ================================
+   모바일
+================================ */
 
-/* 모바일 */
 @media (max-width: 600px) {
 
-    .main .block-container {
-        padding-left: 0.5rem;
-        padding-right: 0.5rem;
+    .block-container {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
     }
 
-    .chess-board {
-        border-width: 6px;
+    .chess-container {
+        padding: 5px;
     }
 
-    .chess-piece {
-        font-size: clamp(34px, 11vw, 52px);
-    }
-
-    .board-coordinate {
-        font-size: 9px;
+    .chess-cell button {
+        min-height: 43px !important;
+        font-size: 32px !important;
     }
 }
 
@@ -229,6 +166,7 @@ if "board" not in st.session_state:
 if "selected_square" not in st.session_state:
     st.session_state.selected_square = None
 
+
 board = st.session_state.board
 selected = st.session_state.selected_square
 
@@ -241,13 +179,16 @@ st.title("♟️ My Chess")
 
 
 # =========================================================
-# 게임 상태
+# 현재 상태
 # =========================================================
 
 if board.is_checkmate():
 
     winner = "흑" if board.turn == chess.WHITE else "백"
-    st.error(f"♔ 체크메이트! {winner} 승리!")
+
+    st.error(
+        f"♚ 체크메이트! **{winner} 승리!**"
+    )
 
 elif board.is_stalemate():
 
@@ -256,16 +197,22 @@ elif board.is_stalemate():
 elif board.is_check():
 
     turn = "백" if board.turn == chess.WHITE else "흑"
-    st.warning(f"⚠️ {turn}의 왕이 체크 상태입니다.")
+
+    st.warning(
+        f"⚠️ {turn}의 왕이 체크 상태입니다."
+    )
 
 else:
 
     turn = "백" if board.turn == chess.WHITE else "흑"
-    st.info(f"현재 차례: **{turn}**")
+
+    st.info(
+        f"현재 차례: **{turn}**"
+    )
 
 
 # =========================================================
-# 버튼
+# 새 게임 / 되돌리기
 # =========================================================
 
 col1, col2 = st.columns(2)
@@ -276,8 +223,10 @@ with col1:
         "🔄 새 게임",
         use_container_width=True
     ):
+
         st.session_state.board = chess.Board()
         st.session_state.selected_square = None
+
         st.rerun()
 
 
@@ -298,7 +247,7 @@ with col2:
 
 
 # =========================================================
-# 합법적인 이동 계산
+# 이동 가능한 칸 계산
 # =========================================================
 
 legal_targets = set()
@@ -308,26 +257,30 @@ if selected is not None:
     for move in board.legal_moves:
 
         if move.from_square == selected:
+
             legal_targets.add(move.to_square)
 
 
 # =========================================================
-# 체스판
+# 체스판 시작
 # =========================================================
 
 st.markdown(
-    '<div class="chess-board">',
+    '<div class="chess-container">',
     unsafe_allow_html=True
 )
 
+
 files = "abcdefgh"
+
+
+# =========================================================
+# 8 x 8 체스판
+# =========================================================
 
 for rank in range(7, -1, -1):
 
-    st.markdown(
-        '<div class="chess-row">',
-        unsafe_allow_html=True
-    )
+    columns = st.columns(8, gap="small")
 
     for file_index in range(8):
 
@@ -338,171 +291,187 @@ for rank in range(7, -1, -1):
 
         piece = board.piece_at(square)
 
+
         # ---------------------------------------------
-        # 색
+        # 칸 색깔
         # ---------------------------------------------
 
         if (file_index + rank) % 2 == 0:
 
-            square_color = "light-square"
+            square_color = "#F0D9B5"
 
         else:
 
-            square_color = "dark-square"
+            square_color = "#B58863"
 
 
         # ---------------------------------------------
-        # 선택
+        # 선택된 칸
         # ---------------------------------------------
 
         if square == selected:
 
-            square_color += " selected-square"
+            square_color = "#F6E652"
 
 
         # ---------------------------------------------
-        # 이동 가능
+        # 이동 가능한 칸
         # ---------------------------------------------
 
-        if square in legal_targets:
-
-            if piece is None:
-
-                square_color += " legal-square"
-
-            else:
-
-                square_color += " capture-square"
+        is_legal_target = square in legal_targets
 
 
         # ---------------------------------------------
         # 말
         # ---------------------------------------------
 
-        piece_html = ""
-
         if piece:
 
             if piece.color == chess.WHITE:
 
-                symbol = WHITE_PIECES[piece.piece_type]
-
-                piece_class = "white-piece"
+                symbol = WHITE_PIECES[
+                    piece.piece_type
+                ]
 
             else:
 
-                symbol = BLACK_PIECES[piece.piece_type]
+                symbol = BLACK_PIECES[
+                    piece.piece_type
+                ]
 
-                piece_class = "black-piece"
+        else:
 
-
-            piece_html = f"""
-                <div class="chess-piece {piece_class}">
-                    {symbol}
-                </div>
-            """
+            symbol = " "
 
 
         # ---------------------------------------------
-        # 좌표
+        # 버튼
         # ---------------------------------------------
 
-        coordinate_html = ""
+        with columns[file_index]:
 
-        if file_index == 0:
+            st.markdown(
+                f"""
+                <style>
+                div[data-testid="stButton"]
+                button[kind="secondary"] {{
+                    background-color: {square_color} !important;
+                }}
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
 
-            coordinate_html += f"""
-                <span class="board-coordinate rank-coordinate">
-                    {rank + 1}
-                </span>
-            """
+            st.markdown(
+                '<div class="chess-cell">',
+                unsafe_allow_html=True
+            )
 
-        if rank == 0:
+            clicked = st.button(
+                symbol,
+                key=f"chess_square_{square}",
+                use_container_width=True
+            )
 
-            coordinate_html += f"""
-                <span class="board-coordinate file-coordinate">
-                    {files[file_index]}
-                </span>
-            """
-
-
-        # ---------------------------------------------
-        # 실제 버튼
-        # ---------------------------------------------
-
-        button_key = f"square_{square}"
-
-        if st.button(
-            piece_html if piece_html else " ",
-            key=button_key,
-            use_container_width=True
-        ):
-
-            # 아무것도 선택되지 않은 경우
-            if selected is None:
-
-                if piece and piece.color == board.turn:
-
-                    st.session_state.selected_square = square
-
-                    st.rerun()
+            st.markdown(
+                '</div>',
+                unsafe_allow_html=True
+            )
 
 
-            # 이미 말을 선택한 경우
-            else:
+            # -----------------------------------------
+            # 클릭 처리
+            # -----------------------------------------
 
-                move = chess.Move(
-                    selected,
-                    square
-                )
+            if clicked:
 
-                # 폰 프로모션
-                selected_piece = board.piece_at(selected)
+                # 선택된 말이 없는 경우
+                if selected is None:
 
-                if (
-                    selected_piece
-                    and selected_piece.piece_type == chess.PAWN
-                    and chess.square_rank(square) in [0, 7]
-                ):
+                    if (
+                        piece
+                        and piece.color == board.turn
+                    ):
+
+                        st.session_state.selected_square = square
+
+                        st.rerun()
+
+
+                # 이미 말을 선택한 경우
+                else:
 
                     move = chess.Move(
                         selected,
-                        square,
-                        promotion=chess.QUEEN
+                        square
                     )
 
 
-                # 합법적인 이동
-                if move in board.legal_moves:
+                    # ---------------------------------
+                    # 폰 프로모션
+                    # ---------------------------------
 
-                    board.push(move)
+                    selected_piece = board.piece_at(
+                        selected
+                    )
 
-                    st.session_state.selected_square = None
+                    if (
+                        selected_piece
+                        and
+                        selected_piece.piece_type
+                        == chess.PAWN
+                        and
+                        chess.square_rank(square)
+                        in [0, 7]
+                    ):
 
-                    st.rerun()
-
-                # 다른 내 말을 선택
-                elif piece and piece.color == board.turn:
-
-                    st.session_state.selected_square = square
-
-                    st.rerun()
-
-                else:
-
-                    st.session_state.selected_square = None
-
-                    st.rerun()
+                        move = chess.Move(
+                            selected,
+                            square,
+                            promotion=chess.QUEEN
+                        )
 
 
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+                    # ---------------------------------
+                    # 합법적인 이동
+                    # ---------------------------------
+
+                    if move in board.legal_moves:
+
+                        board.push(move)
+
+                        st.session_state.selected_square = None
+
+                        st.rerun()
+
+
+                    # ---------------------------------
+                    # 다른 내 말 선택
+                    # ---------------------------------
+
+                    elif (
+                        piece
+                        and piece.color == board.turn
+                    ):
+
+                        st.session_state.selected_square = square
+
+                        st.rerun()
+
+
+                    # ---------------------------------
+                    # 선택 취소
+                    # ---------------------------------
+
+                    else:
+
+                        st.session_state.selected_square = None
+
+                        st.rerun()
 
 
 st.markdown(
-    "</div>",
+    '</div>',
     unsafe_allow_html=True
 )
 
@@ -514,6 +483,7 @@ st.markdown(
 st.divider()
 
 st.subheader("📜 기보")
+
 
 if board.move_stack:
 
@@ -555,4 +525,6 @@ if board.move_stack:
 
 else:
 
-    st.write("아직 진행된 수가 없습니다.")
+    st.write(
+        "아직 진행된 수가 없습니다."
+    )
